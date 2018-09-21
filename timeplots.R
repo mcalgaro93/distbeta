@@ -9,5 +9,5 @@ df <- rbind(db$`T0-T1`,db$`T1-T2`,db$`T2-T3`)
 
 ggplot(df,aes(x = timepoint,y = dist,color = Sample)) + 
   geom_point() + 
-  geom_path(aes(group = Sample),size = 1) 
+  geom_path(aes(group = Sample),size = 1) +
   facet_grid(Gender~Treatment) 
