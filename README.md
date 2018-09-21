@@ -10,3 +10,6 @@ There are several functions:
 - distbeta.beta computes differences between samples using the dissimilarity matrix. It is more complete than distbeta. There is no need of PCA components, the input matrix is the entire #sample x #sample dissimilarity matrix;
 - ggplot.distbeta plots as many graphics as defined in timediff and var.formula;
 - test.distbeta, in a very primitive way, searches the most parsimonious model through stepwise selection beginning from var.formula. Significant variables are those who might be associated with distances.
+
+# timeplots
+In order to obtain time-series plot I suggest the creation of a data.frame object like explained in timeplots.R
