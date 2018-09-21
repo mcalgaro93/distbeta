@@ -1,5 +1,6 @@
 require(vegan)
 require(ggplot2)
+require(phyloseq)
 
 ### Example dataset
 # set.seed(123)
@@ -13,13 +14,13 @@ require(ggplot2)
 # df <- rbind(t0,t1placebo,t1trattati)
 # ggplot(df,aes(x,y,shape = timepoint,color = treat)) + geom_point() + geom_path(aes(group = sample))
 
-distbeta <- function(beta, # Matrice della beta diversity
-                     comp = c(1,2), # vettore di lunghezza 2 con le componenti su cui si vuole calcolare la distanza
-                     metadata, # sample_data dell'oggetto su cui è stata calcolata la beta diversità
+distbeta <- function(beta, # Matrice della PCA per la beta diversity
+                     comp = c(1,2), # vettore di lunghezza 2 con le componenti della PCA su cui si vuole calcolare la distanza
+                     metadata, # sample_data dell'oggetto su cui Ã¨ stata calcolata la beta diversitÃ 
                      samplevar = NULL, # nome della variabile contenente la lista dei campioni
                      condvar, # nomi delli variabili su cui eseguire un test
                      timevar, # nome della variabile temporale
-                     timediff = c("t0-t1")) # Istanti teporali su cui si è interessati a calcolare la distanza
+                     timediff = c("t0-t1")) # Istanti teporali su cui si Ã¨ interessati a calcolare la distanza
 {
   betadist <- beta # Matrice delle coordinate
   if(mean(rownames(betadist)==rownames(metadata))!=1)
@@ -55,11 +56,11 @@ distbeta <- function(beta, # Matrice della beta diversity
 }
 
 distbeta.beta <- function(beta, # Matrice della beta diversity
-                     metadata, # sample_data dell'oggetto su cui è stata calcolata la beta diversità
+                     metadata, # sample_data dell'oggetto su cui Ã¨ stata calcolata la beta diversitÃ 
                      samplevar = NULL, # nome della variabile contenente la lista dei campioni
                      condvar, # nomi delli variabili su cui eseguire un test
                      timevar, # nome della variabile temporale
-                     timediff = c("t0-t1")) # Istanti teporali su cui si è interessati a calcolare la distanza
+                     timediff = c("t0-t1")) # Istanti teporali su cui si Ã¨ interessati a calcolare la distanza
 {
   betadist <- beta # Matrice delle coordinate
   if(mean(rownames(betadist)==rownames(metadata))!=1)
@@ -103,7 +104,7 @@ distbeta.beta <- function(beta, # Matrice della beta diversity
 
 #prova <- distbeta.beta(beta = beta,metadata = as.data.frame(sample_data(ps0)),samplevar = "ID",condvar = c("Treatment","Disease","Gender"),timevar = "TimePoint",timediff = "T0-T1")
 
-# distbeta(beta = df[,1:2],comp = 1:2,metadata = df[,3:5],condvar = "treat",samplevar = NULL,timevar = "timepoint",timediff = c("t0-t1"))
+#distbeta(beta = df[,1:2],comp = 1:2,metadata = df[,3:5],condvar = "treat",samplevar = NULL,timevar = "timepoint",timediff = c("t0-t1"))
 
 #prova <- distbeta(beta = beta$vectors,comp = c(1,2),metadata = sampledf,condvar = c("Treatment","Disease","Gender","Age"),samplevar = "ID",timevar = "TimePoint",timediff = c("T0-T1"))         
 
