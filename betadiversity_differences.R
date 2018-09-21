@@ -2,29 +2,17 @@ require(vegan)
 require(ggplot2)
 require(phyloseq)
 
-### Example dataset
-# set.seed(123)
-# t0 <- data.frame(x = rpois(n = 20,lambda = 5), y = rpois(n = 20,lambda = 5),timepoint = "t0",treat = rep(c("trattato","placebo"),each = 10))
-# t1trattati <- data.frame(x = rpois(n = 10,lambda = 10), y = rpois(n = 10,lambda = 1),timepoint = "t1",treat = "trattato")
-# t1placebo <- data.frame(x = rpois(n = 10,lambda = 5), y = rpois(n = 10,lambda = 5),timepoint = "t1",treat = "placebo")
-# t0$sample <- paste("sample_",1:20,sep = "")
-# t1trattati$sample <- paste("sample_",1:10,sep = "")
-# t1placebo$sample <- paste("sample_",11:20,sep = "")
-# 
-# df <- rbind(t0,t1placebo,t1trattati)
-# ggplot(df,aes(x,y,shape = timepoint,color = treat)) + geom_point() + geom_path(aes(group = sample))
-
-distbeta <- function(beta, # Matrice della PCA per la beta diversity
-                     comp = c(1,2), # vettore di lunghezza 2 con le componenti della PCA su cui si vuole calcolare la distanza
-                     metadata, # sample_data dell'oggetto su cui è stata calcolata la beta diversità
-                     samplevar = NULL, # nome della variabile contenente la lista dei campioni
-                     condvar, # nomi delli variabili su cui eseguire un test
-                     timevar, # nome della variabile temporale
-                     timediff = c("t0-t1")) # Istanti teporali su cui si è interessati a calcolare la distanza
+distbeta <- function(beta, # PCA matrix for beta diversity
+                     comp = c(1,2), # Which PCA components do you want?
+                     metadata, # as.data.frame(sample_data(phyloseq_object))
+                     samplevar = NULL, # sample names variable
+                     condvar, # interesting variable such as Treatment, Gender, BMI...
+                     timevar, # time variable names
+                     timediff = c("t0-t1")) # Timepoint differences
 {
-  betadist <- beta # Matrice delle coordinate
+  betadist <- beta # coordinates
   if(mean(rownames(betadist)==rownames(metadata))!=1)
-    return(cat("I campioni non sono ordinati allo stesso modo nella matrice delle beta-diversity e nei metadati"))
+    return(cat("Different order of the samples between metadata and PCA coordinates"))
   out <- NULL
   for(timepoint in timediff)
   {
@@ -55,16 +43,16 @@ distbeta <- function(beta, # Matrice della PCA per la beta diversity
   return(out)
 }
 
-distbeta.beta <- function(beta, # Matrice della beta diversity
-                     metadata, # sample_data dell'oggetto su cui è stata calcolata la beta diversità
-                     samplevar = NULL, # nome della variabile contenente la lista dei campioni
-                     condvar, # nomi delli variabili su cui eseguire un test
-                     timevar, # nome della variabile temporale
-                     timediff = c("t0-t1")) # Istanti teporali su cui si è interessati a calcolare la distanza
+distbeta.beta <- function(beta, # beta diversity matrix
+                     metadata, # as.data.frame(sample_data(phyloseq_object))
+                     samplevar = NULL, # sample names variable
+                     condvar, # interesting variable such as Treatment, Gender, BMI...
+                     timevar, # time variable names
+                     timediff = c("t0-t1")) # Timepoint differences
 {
-  betadist <- beta # Matrice delle coordinate
+  betadist <- beta # betadiversity
   if(mean(rownames(betadist)==rownames(metadata))!=1)
-    return(cat("I campioni non sono ordinati allo stesso modo nella matrice delle beta-diversity e nei metadati"))
+    return(cat("Different order of the samples between metadata and betadiversity"))
   out <- NULL
   for(timepoint in timediff)
   {
@@ -73,11 +61,11 @@ distbeta.beta <- function(beta, # Matrice della beta diversity
     index.tempo2 <- which(metadata[,timevar]==istanti[2])
     
     if(!is.null(samplevar)){
-      coords <- apply(metadata[,samplevar],1,function(id) which(metadata[,samplevar] == id))
+      coords <- apply(metadata[,c(samplevar)],1,function(id) cbind(metadata[which(metadata[,samplevar] == id[1]),timevar],coord = which(metadata[,samplevar] == id[1])))
       dist <- lapply(coords,function(xy){
-        if(length(xy)>1)
+        if(sum(istanti %in% xy[,1])==2)
         {
-          beta[xy[1],xy[2]]
+          beta[xy[which(xy[,1] == istanti[1]),2],xy[which(xy[,1] == istanti[2]),2]]
         } else NULL
       })
       campioni.t1 <- as.matrix(metadata[index.tempo1,samplevar])
@@ -88,8 +76,8 @@ distbeta.beta <- function(beta, # Matrice della beta diversity
         dist <- dist[ord]
       } else{
         dist <- dist[index.tempo2]
-        ord = match(campioni.t2,campioni.t1)
-        dist(ord)
+        ord = match(campioni.t1,campioni.t2)
+        dist <- dist[ord]
       }
     }
     
@@ -103,9 +91,6 @@ distbeta.beta <- function(beta, # Matrice della beta diversity
 }
 
 #prova <- distbeta.beta(beta = beta,metadata = as.data.frame(sample_data(ps0)),samplevar = "ID",condvar = c("Treatment","Disease","Gender"),timevar = "TimePoint",timediff = "T0-T1")
-
-#distbeta(beta = df[,1:2],comp = 1:2,metadata = df[,3:5],condvar = "treat",samplevar = NULL,timevar = "timepoint",timediff = c("t0-t1"))
-
 #prova <- distbeta(beta = beta$vectors,comp = c(1,2),metadata = sampledf,condvar = c("Treatment","Disease","Gender","Age"),samplevar = "ID",timevar = "TimePoint",timediff = c("T0-T1"))         
 
 ggplot.distbeta <- function(distbeta,timediff = NULL,var.formula = NULL,...) # Oggetto di tipo distbeta
