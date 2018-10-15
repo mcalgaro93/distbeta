@@ -20,7 +20,7 @@ distbeta <- function(beta, # PCA matrix for beta diversity
     index.tempo1 <- which(metadata[,timevar]==istanti[1])
     index.tempo2 <- which(metadata[,timevar]==istanti[2])
     betadist.tempo1 <- betadist[index.tempo1,as.vector(comp)]
-    betadist.tempo2 <- betadist[index.tempo2,comp]
+    betadist.tempo2 <- betadist[index.tempo2,as.vector(comp)]
     
     if(!is.null(samplevar)){
       campioni.t1 <- metadata[index.tempo1,samplevar]
@@ -62,6 +62,7 @@ distbeta.beta <- function(beta, # beta diversity matrix
     
     if(!is.null(samplevar)){
       coords <- apply(metadata[,c(samplevar)],1,function(id) cbind(metadata[which(metadata[,samplevar] == id[1]),timevar],coord = which(metadata[,samplevar] == id[1])))
+      
       dist <- lapply(coords,function(xy){
         if(sum(istanti %in% xy[,1])==2)
         {
